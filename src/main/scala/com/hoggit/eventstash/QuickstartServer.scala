@@ -8,6 +8,6 @@ import com.typesafe.scalalogging.StrictLogging
 object QuickstartServer extends App with StrictLogging {
   val actor = EventStasher.props()
   implicit val system = ActorSystem("eventstash")
-  new Thread(new EventRoute(actor)).start()
+  (new EventRoute(actor)).run()
   Thread.sleep(5000)
 }

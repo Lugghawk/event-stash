@@ -10,15 +10,22 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
 
-import scala.concurrent.duration._
-import scala.concurrent.Future
+import com.hoggit.eventstash.{ Event, RawEvent }
 
-class EventRoute(actor: Props)(implicit as: ActorSystem) extends Runnable with StrictLogging with SprayJsonSupport {
+import scala.concurrent.duration._
+
+class EventRoute(actor: Props)(implicit system: ActorSystem) extends StrictLogging with SprayJsonSupport {
   implicit val materializer = ActorMaterializer()
   implicit val to = Timeout(1.second)
 
-  lazy val routes: Route = path("/") {
+  lazy val routes: Route = pathSingleSlash {
     complete("hello")
+  } ~ path("event") {
+    post {
+      entity(as[RawEvent]) { rawEvent =>
+        complete(Event(rawEvent))
+      }
+    }
   }
 
   def run() {
